@@ -1,0 +1,8 @@
+tensor2tensor
+tensorflow==1.12.0
+pandas
+networkx
+matplotlib.pyplot
+configparser
+argparse
+numpy
