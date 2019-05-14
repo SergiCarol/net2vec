@@ -4,6 +4,7 @@ RouteNet is a GNN implementation that aims to predict the delay and/or jitter of
 
 In this case we used 14 and 50 nodes as training for the GNN and 24 nodes as evaluation, achieving proimising results with the evaluations on the 3 topologies. It is also clear that RouteNet could also be used with more topologies, ej: 14, 50, 100, 150 nodes, to create a bigger generalization.
 
+
 # SetUp
 In order to setup the envoriment to try and run **RouteNet** we first need to install some python packages through *pip*
 ```sh
@@ -16,11 +17,13 @@ The only important file structure is regarding the datasets, the datasets must b
   - - - 14_nodes
   - - - 24_nodes
   - - - 50_nodes 
+Each dataset folder (14_nodes, 24_nodes and 50_nodes) contains three folders, *delaysNsfnet*, *routingsNsfnet*, and *tfrecords*. delaysNsfnet and routingsNsfnet contains the dataset itself, while the tfrecords folders contains the pre processed data.
 
 In the root folder the rest of files would be stored. In the **Utils** folder there are a few scripts to help working or evaluating RouteNet.
   - normalize.py is used to create a config.ini file with the values to use to normalize the data in routenet.
   - eager_eval.py is used to create plots with the results comparing the true delay vs the predicted results.
   - create_folder.sh is used to create the file structure if a new topology is created.
+
 # Running RouteNet
 RouteNet can be run using the **run.sh** script. This script contains eases the ussage of the routenet.py, whihc is the actual file containing the routenet code.
 
@@ -51,3 +54,18 @@ Finally if we want to check how the metrics would behave in a topology we can us
 $ ./run.sh predict 24_nodes 24 train
 ```
 
+### Using other topologies
+
+The datasets provided are already pre processed, and the config file provided already contains the values needed to train RouteNet with the 14 and 50 topologies. But it can be the case that you wish to use a different topology than the ones provided, in this case there are two steps that need to be done before traning.
+
+We begin by converting the data from the simulations to *tfrecords* which is a data format to work with *tensorflow*. To do so we use the *run.sh* utility.
+
+```sh
+$ ./run.sh load 50_nodes
+```
+Which will automatically convert the data and split the dataset into traning and evaluation with a proportion of 80% and 20% of the data.
+
+Then we choosing the normalization values, this can be done using the *normalize.py*. An example of utilization would be the following, where we choose the topology to use and it will automatically calculate the appropiate values and store them in the *config.ini* file. 
+```sh
+$  python3 Utils/normalize.py --dir nsfnet/14_nodes/tfrecords/train --ini config.ini
+```

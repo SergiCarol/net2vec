@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [[ "$1" = "load" ]]; then
-    python3 routenet.py data -d ./nsfnet/$2/delaysNsfnet/dGlobal_0_8_SP_k_0.txt -r ./nsfnet/$2/routingNsfnet/SP_k_0.txt --ned ./nsfnet/$2/Network_$2.ned
+    #python3 routenet.py data -d ./nsfnet/$2/delaysNsfnet/dGlobal_0_8_SP_k_0.txt -r ./nsfnet/$2/routingNsfnet/SP_k_0.txt --ned ./nsfnet/$2/Network_$2.ned
 
-    python3 routenet.py data -d ./nsfnet/$2/routingNsfnet/SP_k_{0..99}.txt --ned ./nsfnet/$2/Network_$2.ned
+    #python3 routenet.py data -d ./nsfnet/$2/routingNsfnet/SP_k_{0..99}.txt --ned ./nsfnet/$2/Network_$2.ned
 
     python3 convert.py --folder $2
 
