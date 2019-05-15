@@ -10,6 +10,11 @@ In order to setup the environment to try and run **RouteNet** we first need to i
 ```sh
 $ pip install -r Utils/requirements.txt
 ```
+
+### The DataSets
+
+The three datasets used are for 14, 24 and 50 nodes and can be found here [DataSets](https://github.com/knowledgedefinednetworking/NetworkModelingDatasets/tree/master/datasets_v0)
+
 ### File structure
 The only important file structure is regarding the datasets, the datasets must be stored in a folder called nsfnet. So in this case the dataset structure would look like this.
   - root_folder
