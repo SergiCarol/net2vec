@@ -1,3 +1,13 @@
+# author:
+# - 'Krzysztof Rusek [^1]'
+# 
+# [^1]: AGH University of Science and Technology, Department of
+#     communications, Krakow, Poland. Email: krusek\@agh.edu.pl
+# 
+# modified by:
+# - Sergi Carol Bosch
+#    * Additions: Normalization by config file, and prediction.
+
 import numpy as np
 import pandas as pd
 import networkx as nx

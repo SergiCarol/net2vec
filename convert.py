@@ -1,3 +1,6 @@
+# author:
+# - 'Sergi Carol'
+
 import glob
 import os
 import argparse

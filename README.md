@@ -75,5 +75,9 @@ Then we choosing the normalization values, this can be done using the *normalize
 ```sh
 $  python3 Utils/normalize.py --dir nsfnet/14_nodes/tfrecords/train --ini config.ini
 ```
+We can also use it to normalize input from multiple sources at once.
 
+```sh
+$  python3 Utils/normalize.py --dir nsfnet/14_nodes/tfrecords/train nsfnet/50_nodes/tfrecords/train --ini config.ini
+```
 

@@ -1,3 +1,6 @@
+# author:
+# - 'Sergi Carol'
+
 import numpy as np 
 import os, random
 import argparse
