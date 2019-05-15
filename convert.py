@@ -12,7 +12,7 @@ args = parser.parse_args()
 
 target = args.folder
 
-for fname in glob.glob('nsfnet/' + target + '/delaysNsfnet/*.txt'):
+for fname in glob.glob('nsfnet/' + target + '/delays/*.txt'):
     print(fname)
     tfname = fname.replace('txt', 'tfrecords')
     routenet.make_tfrecord2(tfname,
@@ -22,7 +22,7 @@ for fname in glob.glob('nsfnet/' + target + '/delaysNsfnet/*.txt'):
                        args.isNew == 'True'
                        )
 
-tfrecords = glob.glob('nsfnet/' + target + '/delaysNsfnet/*.tfrecords')
+tfrecords = glob.glob('nsfnet/' + target + '/delays/*.tfrecords')
 traning = len(tfrecords) * 0.8
 train_samples = random.sample(tfrecords, int(traning))
 evaluate_samples = list(set(tfrecords) - set(train_samples))

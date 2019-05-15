@@ -18,7 +18,7 @@ The only important file structure is regarding the datasets, the datasets must b
   - - - 24_nodes
   - - - 50_nodes 
 
-Each dataset folder (14_nodes, 24_nodes and 50_nodes) contains three folders, *delaysNsfnet*, *routingsNsfnet*, and *tfrecords*. delaysNsfnet and routingsNsfnet contains the dataset itself, while the tfrecords folders contains the pre processed data.
+Each dataset folder (14_nodes, 24_nodes and 50_nodes) contains three folders, *delays*, *routings*, and *tfrecords*. delays and routings contains the dataset itself, while the tfrecords folders contains the pre processed data.
 
 In the root folder the rest of files would be stored. In the **Utils** folder there are a few scripts to help working or evaluating RouteNet.
   - normalize.py is used to create a config.ini file with the values to use to normalize the data in routenet.

@@ -270,12 +270,12 @@ def infer_routing_nsf2(data_file):
 
 def infer_routing_nsf3(data_file):
     rf = re.sub(r'dGlobal_\d+_\d+_', '', data_file).\
-        replace('delaysNsfnet', 'routingNsfnet')
+        replace('delays', 'routing')
     return rf
 
 def infer_routing_nsf4(data_file):
     rf = re.sub(r'results_synth50_\d+_', '', data_file).\
-        replace('delaysNsfnet', 'routingNsfnet')
+        replace('delays', 'routing')
     return rf
 
 
