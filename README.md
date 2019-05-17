@@ -11,9 +11,11 @@ In order to setup the environment to try and run **RouteNet** we first need to i
 $ pip install -r Utils/requirements.txt
 ```
 
+**The Trained Model can be found in the Model folder**. It contains the trained model with 31008 steps
+
 ### The DataSets
 
-The three datasets used are for 14, 24 and 50 nodes and can be found here [DataSets](https://github.com/knowledgedefinednetworking/NetworkModelingDatasets/tree/master/datasets_v0)
+The three datasets used are for 14, 24 and 50 nodes and can be found here [DataSets](https://github.com/knowledgedefinednetworking/NetworkModelingDatasets/tree/master/datasets_v0). The training data contains a total of 768430000 samples, each with a different combination of routings and traffic.
 
 ### File structure
 The only important file structure is regarding the datasets, the datasets must be stored in a folder called nsfnet. So in this case the dataset structure would look like this.
@@ -45,9 +47,9 @@ In all the cases, the first parameter is used to identify which action to take, 
 
 ### Validation
 
-Once the training procedure has been completed, tensorflow automatically creates a folder called **Checkpoints**, which contains the model trained, it also allows to check the metrics and other things about the model by using the *tensorboard* utility.
+Once the training procedure has been completed, tensorflow automatically creates a folder called **Checkpoints**, which contains the model trained, it also allows to check the metrics and other things about the model by using the *tensorboard* utility. If you wish to check the performance of the given trained model, we should set the logdir to the Model folder.
 ```sh
-$ tensorboard --logdir=CheckPoints
+$ tensorboard --logdir=Model
 ```
 In a web browser we check the results.
 
@@ -55,9 +57,9 @@ It is also possible to plot the results in the form of True Delay vs Predicted u
 ```sh
 $ ./run.sh plots
 ```
-Finally if we want to check how the metrics would behave in a topology we can use the predict utility. In the case below we would predict the topology with 24 nodes using the model stored in the train folder on the Checkpoints.
+Finally if we want to check how the metrics would behave in a topology we can use the predict utility. In the case below we would predict the topology with 24 nodes using the model stored in the Model folder.
 ```sh
-$ ./run.sh predict 24_nodes 24 train
+$ ./run.sh predict 24_nodes 24
 ```
 
 ### Using other topologies

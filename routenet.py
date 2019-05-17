@@ -512,7 +512,8 @@ def model_fn(
                 'accuracy': tf.metrics.accuracy(labels, predictions),
                 'mae': tf.metrics.mean_absolute_error(labels, predictions),
                 'rho': tf.contrib.metrics.streaming_pearson_correlation(labels=labels, predictions=predictions),
-                #'r^2': calculate_r_squared(labels, predictions)
+                'r^2': calculate_r_squared(labels, predictions),
+                'mre': tf.metrics.mean_relative_error(labels, predictions, labels)
             }
         )
 
@@ -561,13 +562,12 @@ hparams = tf.contrib.training.HParams(
 
 
 def calculate_r_squared(labels, predictions):
-    label = tf.cast(labels, tf.float32)
-    total_error = tf.reduce_sum(
-        tf.square(tf.math.subtract(label, tf.reduce_mean(label))))
-    unexplained_error = tf.reduce_sum(
-        tf.square(tf.math.subtract(label, predictions)))
-    R_squared = tf.math.subtract(1, tf.div(unexplained_error, total_error))
-    return R_squared
+    unexplained_error = tf.reduce_sum(tf.square(labels - predictions))
+    total_error = tf.reduce_sum(tf.square(
+                                labels - tf.reduce_mean(labels, axis=0)))
+    R2 = 1. - tf.div(unexplained_error, total_error)
+    m_r_sq, update_rsq_op = tf.metrics.mean(R2)
+    return m_r_sq, update_rsq_op
 
 
 def train(args):

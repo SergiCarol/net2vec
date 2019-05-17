@@ -37,7 +37,7 @@ model = upc.ComnetModel(hparams)
 model.build()
 
 saver = tfe.Saver(model.variables)
-saver.restore('CheckPoints/Model/model.ckpt-3750')
+saver.restore('Model/model.ckpt-31008')
 
 
 R = upc.load_routing('nsfnet/' + args.nodes + '_nodes/routing/' + args.routing + '.txt')
