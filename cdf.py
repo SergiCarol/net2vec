@@ -116,7 +116,7 @@ model = upc.ComnetModel(hparams)
 model.build()
 
 saver = tfe.Saver(model.variables)
-saver.restore('CheckPoints/train_multiple/Training/model.ckpt-31008')
+saver.restore('Model/model.ckpt-31008')
 
 # 14 Nodes
 
