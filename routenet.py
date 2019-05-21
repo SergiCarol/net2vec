@@ -1,3 +1,13 @@
+# author:
+# - 'Krzysztof Rusek [^1]'
+# 
+# [^1]: AGH University of Science and Technology, Department of
+#     communications, Krakow, Poland. Email: krusek\@agh.edu.pl
+# 
+# modified by:
+# - Sergi Carol Bosch
+#    * Additions: Normalization by config file, and prediction.
+
 import numpy as np
 import pandas as pd
 import networkx as nx
@@ -258,31 +268,31 @@ def make_tfrecord2(file_name, ned_file, routing_file, data_file, isNew=False):
 
 def infer_routing_nsf(data_file):
     rf = re.sub(r'dGlobal_\d+_R', 'Routing_', data_file).\
-        replace('delaysNsfnet', 'routingNsfnet')
+        replace('delays', 'routing')
     print(rf)
     return rf
 
 
 def infer_routing_nsf2(data_file):
     rf = re.sub(r'dGlobal_\d+_\d+_', '', data_file).\
-        replace('delaysNsfnet', 'routingNsfnet')
+        replace('delays', 'routing')
     return rf
 
 
 def infer_routing_nsf3(data_file):
     rf = re.sub(r'dGlobal_\d+_\d+_', 'Routing_', data_file).\
-        replace('delaysNsfnet', 'routingNsfnet')
+        replace('delays', 'routing')
     return rf
 
 def infer_routing_nsf4(data_file):
     rf = re.sub(r'results_synth50_\d+_', '', data_file).\
-        replace('delaysNsfnet', 'routingNsfnet')
+        replace('delays', 'routing')
     return rf
 
 
 def infer_routing_geant(data_file):
     rf = re.sub(r'dGlobal_G_\d+_\d+_', 'RoutingGeant2_', data_file).\
-        replace('delaysGeant2', 'routingsGeant2')
+        replace('delays', 'routing')
     return rf
 
 
