@@ -269,7 +269,6 @@ def make_tfrecord2(file_name, ned_file, routing_file, data_file, isNew=False):
 def infer_routing_nsf(data_file):
     rf = re.sub(r'dGlobal_\d+_R', 'Routing_', data_file).\
         replace('delays', 'routing')
-    print(rf)
     return rf
 
 
