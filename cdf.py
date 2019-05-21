@@ -5,6 +5,96 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import routenet as upc
 import configparser
+import argparse
+import random
+import glob
+
+
+def calculate_true_delay(R, ned, data, i):
+    R = upc.load_routing(R)
+    con, n = upc.ned2lists(ned)
+    paths = upc.make_paths(R, con)
+    link_indices, path_indices, sequ_indices = upc.make_indices(paths)
+
+    Global, TM_index, delay_index = upc.load(data, n)
+
+    delay = Global.take(delay_index, axis=1).values
+    TMs = Global.take(TM_index, axis=1).values
+    n_paths = delay.shape[1]
+    n_links = max(max(paths)) + 1
+    n_total = len(path_indices)
+
+    tm = tf.convert_to_tensor(
+        (TMs[i, :] - traffic_mean) / traffic_std, dtype=tf.float32)
+
+    feature = {
+        'traffic': tf.convert_to_tensor(tm, dtype=tf.float32),
+        'links': link_indices,
+        'paths': path_indices,
+        'sequances': sequ_indices,
+        'n_links': n_links,
+        'n_paths': n_paths,
+        'n_total': n_total
+    }
+    return (delay[i, :], feature)
+
+
+def calculate_delay_from_model(feature):
+
+    hats = [model(feature, training=True).numpy() for i in range(50)]
+
+    hats = delay_std * np.concatenate(hats, axis=1) + delay_mean
+
+    prediction = np.median(hats, axis=1)
+
+    return prediction
+
+
+def r_squared(x, y):
+    slope, intercept = np.polyfit(x, y, 1)
+    r_squared = 1 - (sum((y - (slope * x + intercept))**2) /
+                     ((len(y) - 1) * np.var(y, ddof=1)))
+    return r_squared
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--file", help="Read result file and calculate from there",
+                    type=str, required=False)
+
+args = parser.parse_args()
+try:
+    res = np.load(args.file)
+except ValueError:
+    res = None
+
+if res is not None:
+    mre_14 = res['mre_14']
+    mre_24 = res['mre_24']
+    mre_50 = res['mre_50']
+    r_2_14 = res['r_2_14']
+    r_2_24 = res['r_2_24']
+    r_2_50 = res['r_2_50']
+    print('*' * 50)
+    print('Results:')
+    print('R^2')
+    print("14 Nodes", r_2_14)
+    print("24 Nodes", r_2_24)
+    print("50 Nodes", r_2_50)
+    print('*' * 50)
+
+    plt.hist(mre_14, cumulative=True, label='14 Nodes',
+             histtype='step', bins=100, alpha=0.8, color='blue', density=True)
+    plt.hist(mre_24, cumulative=True, label='24 Nodes',
+             histtype='step', bins=100, alpha=0.8, color='red', density=True)
+    plt.hist(mre_50, cumulative=True, label='50 Nodes',
+             histtype='step', bins=100, alpha=0.8, color='green', density=True)
+    plt.title("CDF")
+
+    plt.legend(prop={'size': 10})
+    plt.show()
+
+    exit()
+
 
 tfe = tf.contrib.eager
 tf.enable_eager_execution()
@@ -26,147 +116,126 @@ model = upc.ComnetModel(hparams)
 model.build()
 
 saver = tfe.Saver(model.variables)
-saver.restore('Model/model.ckpt-31008')
+saver.restore('CheckPoints/train_multiple/Training/model.ckpt-31008')
 
 # 14 Nodes
 
-R = upc.load_routing('nsfnet/14_nodes/routing/Routing_SP_k_0.txt')
-con, n = upc.ned2lists('nsfnet/14_nodes/Network_14_nodes.ned')
-paths = upc.make_paths(R, con)
-link_indices, path_indices, sequ_indices = upc.make_indices(paths)
+evaluate_records = random.sample(
+    glob.glob('nsfnet/14_nodes/tfrecords/evaluate/*.tfrecords'), 100)
+delays = []
+path = 'nsfnet/14_nodes/delays/%s.txt'
+for record in evaluate_records:
+    tfrecord = record.split('/')[-1]
+    file = tfrecord.split('.')[0]
+    delays.append(path % file)
 
-Global, TM_index, delay_index = upc.load(
-    'nsfnet/14_nodes/delays/dGlobal_0_8_SP_k_0.txt', n)
 
-delay = Global.take(delay_index, axis=1).values
-TMs = Global.take(TM_index, axis=1).values
-n_paths = delay.shape[1]
-n_links = max(max(paths)) + 1
-n_total = len(path_indices)
-i = 344  # Grab just one traffic matrix
+mre = []
+r_2 = []
 
-tm = tf.convert_to_tensor(
-    (TMs[i, :] - traffic_mean) / traffic_std, dtype=tf.float32)
+for j in range(len(delays)):
+    print("Using", upc.infer_routing_nsf(delays[j]), delays[j])
+    for i in random.sample(range(1, 500), 30):
+        try:
+            y, feature = calculate_true_delay(upc.infer_routing_nsf(delays[j]),
+                                              'nsfnet/14_nodes/Network_14_nodes.ned',
+                                              delays[j], i)
 
-feature = {
-    'traffic': tf.convert_to_tensor(tm, dtype=tf.float32),
-    'links': link_indices,
-    'paths': path_indices,
-    'sequances': sequ_indices,
-    'n_links': n_links,
-    'n_paths': n_paths,
-    'n_total': n_total
-}
+            x = calculate_delay_from_model(feature)
 
-hats = [model(feature, training=True).numpy() for i in range(50)]
+            relative_error = (y - x) / y
 
-hats = delay_std * np.concatenate(hats, axis=1) + delay_mean
+            mre.append(relative_error)
+            r_2.append(r_squared(x, y))
+        except:
+            continue
 
-prediction = np.median(hats, axis=1)
+mre = np.asarray(mre)
+avg_mre_14 = np.average(mre, axis=0)
+r_2_14 = np.average(r_2)
 
-x = prediction
-y = delay[i, :]
+print("R Squared", r_2_14)
 
-relative_error = (y - x) / y
-
-plt.hist(relative_error, cumulative=True, label='14 Nodes',
-         histtype='step',bins=100, alpha=0.8, color='red', density=True)
-
+plt.hist(avg_mre_14, cumulative=True, label='14 Nodes',
+         histtype='step', bins=100, alpha=0.8, color='blue', density=True)
 
 
 # 24 Nodes
+delays = random.sample(glob.glob('nsfnet/24_nodes/delays/*.txt'), 100)
 
+mre = []
+r_2 = []
 
+for j in range(len(delays)):
+    print("Using", upc.infer_routing_geant(delays[j]), delays[j])
+    for i in random.sample(range(1, 500), 30):
+        try:    
+            y, feature = calculate_true_delay(upc.infer_routing_geant(delays[j]),
+                                              'nsfnet/24_nodes/Network_24_nodes.ned',
+                                              delays[j], i)
 
-R = upc.load_routing('nsfnet/24_nodes/routing/RoutingGeant2_W_2_k_7.txt')
-con, n = upc.ned2lists('nsfnet/24_nodes/Network_24_nodes.ned')
-paths = upc.make_paths(R, con)
-link_indices, path_indices, sequ_indices = upc.make_indices(paths)
+            x = calculate_delay_from_model(feature)
 
-Global, TM_index, delay_index = upc.load(
-    'nsfnet/24_nodes/delays/dGlobal_G_0_12_W_2_k_7.txt', n)
+            relative_error = (y - x) / y
 
-delay = Global.take(delay_index, axis=1).values
-TMs = Global.take(TM_index, axis=1).values
-n_paths = delay.shape[1]
-n_links = max(max(paths)) + 1
-n_total = len(path_indices)
-i = 344  # Grab just one traffic matrix
+            mre.append(relative_error)
+            r_2.append(r_squared(x, y))
+        except:
+            continue
+mre = np.asarray(mre)
+avg_mre_24 = np.average(mre, axis=0)
+r_2_24 = np.average(r_2)
 
-tm = tf.convert_to_tensor(
-    (TMs[i, :] - traffic_mean) / traffic_std, dtype=tf.float32)
+print("R Squared", r_2_24)
 
-feature = {
-    'traffic': tf.convert_to_tensor(tm, dtype=tf.float32),
-    'links': link_indices,
-    'paths': path_indices,
-    'sequances': sequ_indices,
-    'n_links': n_links,
-    'n_paths': n_paths,
-    'n_total': n_total
-}
-
-hats = [model(feature, training=True).numpy() for i in range(50)]
-
-hats = delay_std * np.concatenate(hats, axis=1) + delay_mean
-
-prediction = np.median(hats, axis=1)
-
-x = prediction
-y = delay[i, :]
-
-relative_error = (y - x) / y
-
-plt.hist(relative_error, cumulative=True, label='24 Nodes',
-         histtype='step',bins=100, alpha=0.8, color='blue', density=True)
+plt.hist(avg_mre_24, cumulative=True, label='24 Nodes',
+         histtype='step', bins=100, alpha=0.8, color='red', density=True)
 
 
 # 50 Nodes
 
+evaluate_records = random.sample(
+    glob.glob('nsfnet/50_nodes/tfrecords/evaluate/*.tfrecords'), 100)
+delays = []
+path = 'nsfnet/50_nodes/delays/%s.txt'
+for record in evaluate_records:
+    tfrecord = record.split('/')[-1]
+    file = tfrecord.split('.')[0]
+    delays.append(path % file)
 
 
-R = upc.load_routing('nsfnet/50_nodes/routing/SP_k_0.txt')
-con, n = upc.ned2lists('nsfnet/50_nodes/Network_50_nodes.ned')
-paths = upc.make_paths(R, con)
-link_indices, path_indices, sequ_indices = upc.make_indices(paths)
+mre = []
+r_2 = []
 
-Global, TM_index, delay_index = upc.load(
-    'nsfnet/50_nodes/delays/dGlobal_0_8_SP_k_0.txt', n)
+for j in range(len(delays)):
+    print("Using", upc.infer_routing_nsf2(delays[j]), delays[j])
+    for i in random.sample(range(1, 500), 30):
+        try:
+            y, feature = calculate_true_delay(upc.infer_routing_nsf2(delays[j]),
+                                              'nsfnet/50_nodes/Network_50_nodes.ned',
+                                              delays[j], i)
 
-delay = Global.take(delay_index, axis=1).values
-TMs = Global.take(TM_index, axis=1).values
-n_paths = delay.shape[1]
-n_links = max(max(paths)) + 1
-n_total = len(path_indices)
-i = 344  # Grab just one traffic matrix
+            x = calculate_delay_from_model(feature)
 
-tm = tf.convert_to_tensor(
-    (TMs[i, :] - traffic_mean) / traffic_std, dtype=tf.float32)
+            relative_error = (y - x) / y
 
-feature = {
-    'traffic': tf.convert_to_tensor(tm, dtype=tf.float32),
-    'links': link_indices,
-    'paths': path_indices,
-    'sequances': sequ_indices,
-    'n_links': n_links,
-    'n_paths': n_paths,
-    'n_total': n_total
-}
+            mre.append(relative_error)
+            r_2.append(r_squared(x, y))
+        except:
+            continue
+mre = np.asarray(mre)
+avg_mre_50 = np.average(mre, axis=0)
+r_2_50 = np.average(r_2)
 
-hats = [model(feature, training=True).numpy() for i in range(50)]
+print("R Squared", r_2_50)
+plt.hist(avg_mre_50, cumulative=True, label='50 Nodes',
+         histtype='step', bins=100, alpha=0.8, color='green', density=True)
 
-hats = delay_std * np.concatenate(hats, axis=1) + delay_mean
 
-prediction = np.median(hats, axis=1)
+np.savez(args.file, mre_14=avg_mre_14, mre_24=avg_mre_24, mre_50=avg_mre_50,
+         r_2_14=r_2_14, r_2_24=r_2_24, r_2_50=r_2_50)
 
-x = prediction
-y = delay[i, :]
-
-relative_error = (y - x) / y
-
-plt.hist(relative_error, cumulative=True, label='50 Nodes',
-         histtype='step',bins=100, alpha=0.8, color='green', density=True)
-
+plt.title("CDF")
 
 plt.legend(prop={'size': 10})
 plt.show()
