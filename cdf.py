@@ -9,10 +9,7 @@ import routenet as upc
 import configparser
 import argparse
 import random
-<<<<<<< HEAD
-=======
 import glob
->>>>>>> origin/master
 
 
 def calculate_true_delay(R, ned, data, i):
@@ -125,53 +122,11 @@ saver.restore('CheckPoints/train_multiple/Training/model.ckpt-31008')
 
 # 14 Nodes
 
-<<<<<<< HEAD
-routing = ['datasets/14_nodes/routing/Routing_SP_k_0.txt',
-           'datasets/14_nodes/routing/Routing_AL_1_k_1.txt',
-           'datasets/14_nodes/routing/Routing_SP_k_15.txt',
-           'datasets/14_nodes/routing/Routing_SP_k_32.txt',
-           'datasets/14_nodes/routing/Routing_W_8_k_9.txt',
-           'datasets/14_nodes/routing/Routing_W_3_k_4.txt',
-           'datasets/14_nodes/routing/Routing_SP_k_46.txt',
-           'datasets/14_nodes/routing/Routing_SP_k_46.txt',
-           'datasets/14_nodes/routing/Routing_SP_k_20.txt']
 
-delays = ['datasets/14_nodes/delays/dGlobal_0_8_SP_k_0.txt',
-          'datasets/14_nodes/delays/dGlobal_0_10_AL_1_k_1.txt',
-          'datasets/14_nodes/delays/dGlobal_0_10_SP_k_15.txt',
-          'datasets/14_nodes/delays/dGlobal_0_12_SP_k_32.txt',
-          'datasets/14_nodes/delays/dGlobal_0_15_W_8_k_9.txt',
-          'datasets/14_nodes/delays/dGlobal_0_10_W_3_k_4.txt',
-          'datasets/14_nodes/delays/dGlobal_0_8_SP_k_46.txt',
-          'datasets/14_nodes/delays/dGlobal_0_10_SP_k_46.txt',
-          'datasets/14_nodes/delays/dGlobal_0_8_SP_k_20.txt']
-
-mre = []
-r_2 = []
-
-for j in range(len(routing)):
-    print("Using", routing[j], delays[j])
-    for i in random.sample(range(1, 500), 25):
-        y, feature = calculate_true_delay(upc.infer_routing_nsf(delays[j]),
-                                          'datasets/14_nodes/Network_14_nodes.ned',
-                                          delays[j], i)
-
-        x = calculate_delay_from_model(feature)
-
-        relative_error = (y - x) / y
-
-        mre.append(relative_error)
-        r_2.append(r_squared(x, y))
-
-mre = np.asarray(mre)
-avg_mre_14 = np.average(mre, axis=0)
-r_2_14 = np.average(r_2)
-
-=======
 evaluate_records = random.sample(
-    glob.glob('nsfnet/14_nodes/tfrecords/evaluate/*.tfrecords'), 100)
+    glob.glob('datasets/14_nodes/tfrecords/evaluate/*.tfrecords'), 100)
 delays = []
-path = 'nsfnet/14_nodes/delays/%s.txt'
+path = 'datasets/14_nodes/delays/%s.txt'
 for record in evaluate_records:
     tfrecord = record.split('/')[-1]
     file = tfrecord.split('.')[0]
@@ -186,7 +141,7 @@ for j in range(len(delays)):
     for i in random.sample(range(1, 500), 30):
         try:
             y, feature = calculate_true_delay(upc.infer_routing_nsf(delays[j]),
-                                              'nsfnet/14_nodes/Network_14_nodes.ned',
+                                              'datasets/14_nodes/Network_14_nodes.ned',
                                               delays[j], i)
 
             x = calculate_delay_from_model(feature)
@@ -202,7 +157,6 @@ mre = np.asarray(mre)
 avg_mre_14 = np.average(mre, axis=0)
 r_2_14 = np.average(r_2)
 
->>>>>>> origin/master
 print("R Squared", r_2_14)
 
 plt.hist(avg_mre_14, cumulative=True, label='14 Nodes',
@@ -210,62 +164,17 @@ plt.hist(avg_mre_14, cumulative=True, label='14 Nodes',
 
 
 # 24 Nodes
-delays = random.sample(glob.glob('nsfnet/24_nodes/delays/*.txt'), 100)
+delays = random.sample(glob.glob('datasets/24_nodes/delays/*.txt'), 100)
 
-<<<<<<< HEAD
-routing = ['datasets/24_nodes/routing/RoutingGeant2_W_2_k_7.txt',
-           'datasets/24_nodes/routing/RoutingGeant2_AL_2_k_0.txt',
-           'datasets/24_nodes/routing/RoutingGeant2_SP_k_0.txt',
-           'datasets/24_nodes/routing/RoutingGeant2_SP_k_51.txt',
-           'datasets/24_nodes/routing/RoutingGeant2_SP_k_59.txt',
-           'datasets/24_nodes/routing/RoutingGeant2_W_6_k_7.txt',
-           'datasets/24_nodes/routing/RoutingGeant2_AL_2_k_8.txt',
-           'datasets/24_nodes/routing/RoutingGeant2_SP_k_62.txt',
-           'datasets/24_nodes/routing/RoutingGeant2_W_2_k_4.txt']
-
-delays = ['datasets/24_nodes/delays/dGlobal_G_0_12_W_2_k_7.txt',
-          'datasets/24_nodes/delays/dGlobal_G_0_12_AL_2_k_0.txt',
-          'datasets/24_nodes/delays/dGlobal_G_0_10_SP_k_0.txt',
-          'datasets/24_nodes/delays/dGlobal_G_0_15_SP_k_0.txt',
-          'datasets/24_nodes/delays/dGlobal_G_0_12_SP_k_59.txt',
-          'datasets/24_nodes/delays/dGlobal_G_0_12_W_6_k_7.txt',
-          'datasets/24_nodes/delays/dGlobal_G_0_10_AL_2_k_8.txt',
-          'datasets/24_nodes/delays/dGlobal_G_0_8_SP_k_62.txt',
-          'datasets/24_nodes/delays/dGlobal_G_0_15_W_2_k_4.txt']
-
-mre = []
-r_2 = []
-
-for j in range(len(routing)):
-    print("Using", routing[j], delays[j])
-    for i in random.sample(range(1, 500), 25):
-        y, feature = calculate_true_delay(routing[j],
-                                          'datasets/24_nodes/Network_24_nodes.ned',
-                                          delays[j], i)
-
-        x = calculate_delay_from_model(feature)
-
-        relative_error = (y - x) / y
-
-        mre.append(relative_error)
-        r_2.append(r_squared(x, y))
-
-mre = np.asarray(mre)
-avg_mre_24 = np.average(mre, axis=0)
-r_2_24 = np.average(r_2)
-
-print("R Squared", r_2_24)
-
-=======
 mre = []
 r_2 = []
 
 for j in range(len(delays)):
     print("Using", upc.infer_routing_geant(delays[j]), delays[j])
     for i in random.sample(range(1, 500), 30):
-        try:    
+        try:
             y, feature = calculate_true_delay(upc.infer_routing_geant(delays[j]),
-                                              'nsfnet/24_nodes/Network_24_nodes.ned',
+                                              'datasets/24_nodes/Network_24_nodes.ned',
                                               delays[j], i)
 
             x = calculate_delay_from_model(feature)
@@ -282,70 +191,29 @@ r_2_24 = np.average(r_2)
 
 print("R Squared", r_2_24)
 
->>>>>>> origin/master
 plt.hist(avg_mre_24, cumulative=True, label='24 Nodes',
          histtype='step', bins=100, alpha=0.8, color='red', density=True)
 
 
 # 50 Nodes
 
-<<<<<<< HEAD
-routing = ['datasets/50_nodes/routing/SP_k_0.txt',
-           'datasets/50_nodes/routing/SP_k_21.txt',
-           'datasets/50_nodes/routing/SP_k_61.txt',
-           'datasets/50_nodes/routing/W_6_k_9.txt',
-           'datasets/50_nodes/routing/SP_k_90.txt',
-           'datasets/50_nodes/routing/W_10_k_0.txt',
-           'datasets/50_nodes/routing/W_1_k_9.txt',
-           'datasets/50_nodes/routing/SP_k_4.txt',
-           'datasets/50_nodes/routing/W_3_k_3.txt']
-=======
+
 evaluate_records = random.sample(
-    glob.glob('nsfnet/50_nodes/tfrecords/evaluate/*.tfrecords'), 100)
+    glob.glob('datasets/50_nodes/tfrecords/evaluate/*.tfrecords'), 100)
 delays = []
-path = 'nsfnet/50_nodes/delays/%s.txt'
+path = 'datasets/50_nodes/delays/%s.txt'
 for record in evaluate_records:
     tfrecord = record.split('/')[-1]
     file = tfrecord.split('.')[0]
     delays.append(path % file)
->>>>>>> origin/master
 
-delays = ['datasets/50_nodes/delays/dGlobal_0_8_SP_k_0.txt',
-          'datasets/50_nodes/delays/dGlobal_0_8_SP_k_21.txt',
-          'datasets/50_nodes/delays/dGlobal_0_10_SP_k_61.txt',
-          'datasets/50_nodes/delays/dGlobal_0_10_W_6_k_9.txt',
-          'datasets/50_nodes/delays/dGlobal_0_12_SP_k_90.txt',
-          'datasets/50_nodes/delays/dGlobal_0_12_W_10_k_0.txt',
-          'datasets/50_nodes/delays/dGlobal_0_8_W_1_k_9.txt',
-          'datasets/50_nodes/delays/dGlobal_0_12_SP_k_4.txt',
-          'datasets/50_nodes/delays/dGlobal_0_12_W_3_k_3.txt']
-
-mre = []
-r_2 = []
-<<<<<<< HEAD
-
-for j in range(len(routing)):
-    print("Using", routing[j], delays[j])
-    for i in random.sample(range(1, 500), 25):
-        y, feature = calculate_true_delay(routing[j],
-                                          'datasets/50_nodes/Network_50_nodes.ned',
-                                          delays[j], i)
-
-        x = calculate_delay_from_model(feature)
-
-        relative_error = (y - x) / y
-
-        mre.append(relative_error)
-        r_2.append(r_squared(x, y))
-
-=======
 
 for j in range(len(delays)):
     print("Using", upc.infer_routing_nsf2(delays[j]), delays[j])
     for i in random.sample(range(1, 500), 30):
         try:
             y, feature = calculate_true_delay(upc.infer_routing_nsf2(delays[j]),
-                                              'nsfnet/50_nodes/Network_50_nodes.ned',
+                                              'datasets/50_nodes/Network_50_nodes.ned',
                                               delays[j], i)
 
             x = calculate_delay_from_model(feature)
@@ -356,7 +224,7 @@ for j in range(len(delays)):
             r_2.append(r_squared(x, y))
         except:
             continue
->>>>>>> origin/master
+
 mre = np.asarray(mre)
 avg_mre_50 = np.average(mre, axis=0)
 r_2_50 = np.average(r_2)
