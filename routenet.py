@@ -267,19 +267,23 @@ def make_tfrecord2(file_name, ned_file, routing_file, data_file, isNew=False):
 
 
 def infer_routing_nsf(data_file):
+<<<<<<< HEAD
     rf = re.sub(r'dGlobal_\d+_\d+_', 'Routing_', data_file).\
+=======
+    rf = re.sub(r'dGlobal_\d+_R', 'Routing_', data_file).\
+>>>>>>> origin/master
         replace('delays', 'routing')
     return rf
 
 
 def infer_routing_nsf2(data_file):
-    rf = re.sub(r'dGlobal_\d+_\d+_', 'Routing_', data_file).\
-        replace('datasets2', 'routing2')
+    rf = re.sub(r'dGlobal_\d+_\d+_', '', data_file).\
+        replace('delays', 'routing')
     return rf
 
 
 def infer_routing_nsf3(data_file):
-    rf = re.sub(r'dGlobal_\d+_\d+_', '', data_file).\
+    rf = re.sub(r'dGlobal_\d+_\d+_', 'Routing_', data_file).\
         replace('delays', 'routing')
     return rf
 
@@ -291,7 +295,7 @@ def infer_routing_nsf4(data_file):
 
 def infer_routing_geant(data_file):
     rf = re.sub(r'dGlobal_G_\d+_\d+_', 'RoutingGeant2_', data_file).\
-        replace('delaysGeant2', 'routingsGeant2')
+        replace('delays', 'routing')
     return rf
 
 
@@ -504,6 +508,7 @@ def model_fn(
 
     # TODO R**2
     if mode == tf.estimator.ModeKeys.EVAL:
+
         return tf.estimator.EstimatorSpec(
             mode, loss=loss,
             eval_metric_ops={

@@ -22,8 +22,13 @@ if [[ "$1" = "train_multiple" ]]; then
     for i in {1..50..2}
         do
 
+<<<<<<< HEAD
         python3 routenet.py --ini config.ini train --hparams="l2=0.1,dropout_rate=0.5,link_state_dim=32,path_state_dim=32,readout_units=256,learning_rate=0.001,T=8,node_count=$3, predict_count=$3"  --train  ./datasets$2/tfrecords/train/*.tfrecords --train_steps 10 --eval_ ./datasets/$2/tfrecords/evaluate/*.tfrecords --epochs 5 --model_dir ./CheckPoints/Model
         python3 routenet.py --ini config.ini train --hparams="l2=0.1,dropout_rate=0.5,link_state_dim=32,path_state_dim=32,readout_units=256,learning_rate=0.001,T=8,node_count=$5, predict_count=$5"  --train  ./datasets$4/tfrecords/train/*.tfrecords --train_steps 10 --eval_ ./datasets/$4/tfrecords/evaluate/*.tfrecords --epochs 5 --model_dir ./CheckPoints/train_multiple
+=======
+        python3 routenet.py --ini config.ini train --hparams="l2=0.1,dropout_rate=0.5,link_state_dim=32,path_state_dim=32,readout_units=256,learning_rate=0.001,T=8,node_count=$3, predict_count=$3"  --train  ./nsfnet/$2/tfrecords/train/*.tfrecords --train_steps 10 --eval_ ./nsfnet/$2/tfrecords/evaluate/*.tfrecords --epochs 5 --model_dir ./CheckPoints/Model
+        python3 routenet.py --ini config.ini train --hparams="l2=0.1,dropout_rate=0.5,link_state_dim=32,path_state_dim=32,readout_units=256,learning_rate=0.001,T=8,node_count=$5, predict_count=$5"  --train  ./nsfnet/$4/tfrecords/train/*.tfrecords --train_steps 10 --eval_ ./nsfnet/$4/tfrecords/evaluate/*.tfrecords --epochs 5 --model_dir ./CheckPoints/Model
+>>>>>>> origin/master
         
         done
 fi
