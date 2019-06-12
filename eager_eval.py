@@ -40,13 +40,13 @@ saver = tfe.Saver(model.variables)
 saver.restore('Model/model.ckpt-31008')
 
 
-R = upc.load_routing('nsfnet/' + args.nodes + '_nodes/routing/' + args.routing + '.txt')
-con, n = upc.ned2lists('nsfnet/' + args.nodes + '_nodes/Network_' + args.nodes + '_nodes.ned')
+R = upc.load_routing('datasets/' + args.nodes + '_nodes/routing/' + args.routing + '.txt')
+con, n = upc.ned2lists('datasets/' + args.nodes + '_nodes/Network_' + args.nodes + '_nodes.ned')
 paths = upc.make_paths(R, con)
 link_indices, path_indices, sequ_indices = upc.make_indices(paths)
 
 Global, TM_index, delay_index = upc.load(
-    'nsfnet/' + args.nodes + '_nodes/delays/' + args.name + '.txt', n, isNew=args.isNew)
+    'datasets/' + args.nodes + '_nodes/delays/' + args.name + '.txt', n, isNew=args.isNew)
 
 delay = Global.take(delay_index, axis=1).values
 TMs = Global.take(TM_index, axis=1).values
